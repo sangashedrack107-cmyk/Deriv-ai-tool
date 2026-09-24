@@ -469,6 +469,41 @@ const now = Date.now();
 if (prices.length < 20) {
     signalStrength = "WAIT";
     return;
+}const recent = prices.slice(-20);
+
+let upMoves = 0;
+let downMoves = 0;
+
+for(let i = 1; i < recent.length; i++){
+
+    if(recent[i] > recent[i - 1]){
+        upMoves++;
+    }
+
+    if(recent[i] < recent[i - 1]){
+        downMoves++;
+    }
+}
+
+const totalMoves = upMoves + downMoves;
+
+if(totalMoves === 0){
+    signalStrength = "WAIT";
+}
+else {
+
+    const directionRatio =
+        Math.max(upMoves, downMoves) / totalMoves;
+
+    if(directionRatio >= 0.70){
+        signalStrength = "STRONG";
+    }
+    else if(directionRatio >= 0.58){
+        signalStrength = "NORMAL";
+    }
+    else {
+        signalStrength = "WAIT";
+    }
 }
     if(prices.length < 5){
         return;
