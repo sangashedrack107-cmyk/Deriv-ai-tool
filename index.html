@@ -3,414 +3,562 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Elite Deriv AI</title>
 
 <style>
-* {
-    box-sizing: border-box;
-    font-family: Arial, sans-serif;
+body{
+    margin:0;
+    font-family:Arial,sans-serif;
+    background:#07111f;
+    color:white;
 }
 
-body {
-    margin: 0;
-    background: #080b12;
-    color: white;
+.container{
+    max-width:700px;
+    margin:auto;
+    padding:20px;
 }
 
-.header {
-    text-align: center;
-    padding: 20px;
-    background: #111827;
+h1{
+    text-align:center;
+    margin-bottom:5px;
 }
 
-.header h1 {
-    margin: 0;
+.subtitle{
+    text-align:center;
+    color:#9fb0c5;
+    margin-bottom:20px;
 }
 
-.header p {
-    color: #9ca3af;
+.card{
+    background:#0d1b2d;
+    border:1px solid #1d3550;
+    border-radius:15px;
+    padding:18px;
+    margin-bottom:15px;
 }
 
-.container {
-    max-width: 600px;
-    margin: auto;
-    padding: 18px;
+label{
+    display:block;
+    margin-bottom:8px;
+    color:#a9bad0;
 }
 
-.card {
-    background: #111827;
-    border: 1px solid #263244;
-    border-radius: 15px;
-    padding: 18px;
-    margin-bottom: 15px;
+select,button{
+    width:100%;
+    padding:13px;
+    border-radius:10px;
+    border:none;
+    font-size:15px;
 }
 
-.status {
-    text-align: center;
-    padding: 12px;
-    border-radius: 10px;
-    background: #172033;
+select{
+    background:#14263d;
+    color:white;
+    margin-bottom:12px;
 }
 
-.live-price {
-    text-align: center;
-    font-size: 35px;
-    font-weight: bold;
-    margin: 15px 0;
+button{
+    background:#1877f2;
+    color:white;
+    font-weight:bold;
+    cursor:pointer;
 }
 
-.tick-count {
-    text-align: center;
-    color: #9ca3af;
+button:hover{
+    opacity:.9;
 }
 
-select,
-button {
-    width: 100%;
-    padding: 13px;
-    margin-top: 10px;
-    border-radius: 10px;
-    border: none;
-    font-size: 16px;
+.status{
+    text-align:center;
+    padding:10px;
+    border-radius:10px;
+    background:#18283c;
+    margin-bottom:15px;
 }
 
-select {
-    background: #1f2937;
-    color: white;
+.live{
+    color:#35e67c;
 }
 
-button {
-    background: #2563eb;
-    color: white;
-    font-weight: bold;
+.price{
+    text-align:center;
+    font-size:32px;
+    font-weight:bold;
+    margin:10px 0;
 }
 
-.signal {
-    text-align: center;
-    padding: 20px;
+.stats{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
 }
 
-.signal-value {
-    font-size: 38px;
-    font-weight: bold;
+.stat{
+    background:#14263d;
+    padding:15px;
+    border-radius:10px;
+    text-align:center;
 }
 
-.call {
-    color: #22c55e;
+.stat span{
+    display:block;
+    color:#9fb0c5;
+    font-size:13px;
+    margin-bottom:5px;
 }
 
-.put {
-    color: #ef4444;
+.signal{
+    text-align:center;
+    font-size:30px;
+    font-weight:bold;
+    padding:15px;
+    border-radius:12px;
+    background:#14263d;
+    margin-top:15px;
 }
 
-.wait {
-    color: #facc15;
+.reason{
+    color:#b9c7d8;
+    line-height:1.5;
+    margin-top:12px;
 }
 
-.grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
+.history{
+    max-height:250px;
+    overflow-y:auto;
 }
 
-.box {
-    background: #1a2333;
-    padding: 18px;
-    border-radius: 12px;
-    text-align: center;
-}
-
-.value {
-    font-size: 24px;
-    font-weight: bold;
-}
-
-.footer {
-    text-align: center;
-    color: #6b7280;
-    font-size: 12px;
-    padding: 20px;
+.history div{
+    padding:9px;
+    border-bottom:1px solid #20354c;
+    font-size:14px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="header">
-    <h1>🤖 ELITE DERIV AI</h1>
-    <p>Live Market Analysis</p>
-</div>
-
 <div class="container">
 
-    <div class="card">
-        <div id="status" class="status">
-            🟡 Connecting to Deriv...
-        </div>
+<h1>🤖 ELITE DERIV AI</h1>
+<div class="subtitle">Live Market Analysis</div>
 
-        <div id="price" class="live-price">
-            --
-        </div>
+<div class="status" id="status">
+🔴 Disconnected
+</div>
 
-        <div id="ticks" class="tick-count">
-            Ticks received: 0
-        </div>
-    </div>
+<div class="card">
 
-    <div class="card">
+<label>Select Market</label>
 
-        <label>Market</label>
+<select id="market">
+<option value="1HZ10V">Volatility 10 (1s)</option>
+<option value="1HZ25V">Volatility 25 (1s)</option>
+<option value="1HZ50V">Volatility 50 (1s)</option>
+<option value="1HZ75V">Volatility 75 (1s)</option>
+<option value="1HZ100V">Volatility 100 (1s)</option>
+</select>
 
-        <select id="market">
-            <option value="1HZ10V">Volatility 10 (1s)</option>
-            <option value="1HZ25V">Volatility 25 (1s)</option>
-            <option value="1HZ50V">Volatility 50 (1s)</option>
-            <option value="1HZ75V">Volatility 75 (1s)</option>
-            <option value="1HZ100V">Volatility 100 (1s)</option>
-        </select>
-
-        <button onclick="changeMarket()">
-            🔄 CONNECT MARKET
-        </button>
-
-    </div>
-
-    <div class="card signal">
-
-        <div>AI SIGNAL</div>
-
-        <div id="signal" class="signal-value wait">
-            WAIT
-        </div>
-
-        <div id="confidence">
-            Confidence: --
-        </div>
-
-        <p id="reason">
-            Waiting for live market data...
-        </p>
-
-    </div>
-
-    <div class="card">
-
-        <h3>📊 Live Analysis</h3>
-
-        <div class="grid">
-
-            <div class="box">
-                <div>Last Digit</div>
-                <div id="digit" class="value">--</div>
-            </div>
-
-            <div class="box">
-                <div>Direction</div>
-                <div id="direction" class="value">--</div>
-            </div>
-
-            <div class="box">
-                <div>CALL</div>
-                <div id="call" class="value call">--</div>
-            </div>
-
-            <div class="box">
-                <div>PUT</div>
-                <div id="put" class="value put">--</div>
-            </div>
-
-        </div>
-
-    </div>
+<button onclick="connectDeriv()">
+🔄 CONNECT MARKET
+</button>
 
 </div>
 
-<div class="footer">
-    ELITE FX ACADEMY © 2026
+<div class="card">
+
+<div class="price" id="price">--</div>
+
+<div class="stats">
+
+<div class="stat">
+<span>Ticks Received</span>
+<b id="ticks">0</b>
+</div>
+
+<div class="stat">
+<span>Last Digit</span>
+<b id="digit">--</b>
+</div>
+
+<div class="stat">
+<span>Direction</span>
+<b id="direction">--</b>
+</div>
+
+<div class="stat">
+<span>Market</span>
+<b id="currentMarket">--</b>
+</div>
+
+</div>
+
+</div>
+
+<div class="card">
+
+<h3>🧠 AI SIGNAL</h3>
+
+<div class="signal" id="signal">
+WAITING
+</div>
+
+<div class="stats">
+
+<div class="stat">
+<span>CALL</span>
+<b id="callPercent">50%</b>
+</div>
+
+<div class="stat">
+<span>PUT</span>
+<b id="putPercent">50%</b>
+</div>
+
+</div>
+
+<div class="reason" id="reason">
+Waiting for enough live market data...
+</div>
+
+</div>
+
+<div class="card">
+
+<h3>📊 SIGNAL HISTORY</h3>
+
+<div class="history" id="history">
+No signals yet.
+</div>
+
+</div>
+
 </div>
 
 <script>
 
-let ws;
-let currentSymbol = "1HZ10V";
+let ws = null;
+
 let tickCount = 0;
 let previousPrice = null;
 
-function connectDeriv() {
+let prices = [];
+let digits = [];
 
-    if (ws) {
+const statusEl = document.getElementById("status");
+const priceEl = document.getElementById("price");
+const ticksEl = document.getElementById("ticks");
+const digitEl = document.getElementById("digit");
+const directionEl = document.getElementById("direction");
+const marketEl = document.getElementById("market");
+const currentMarketEl = document.getElementById("currentMarket");
+
+const signalEl = document.getElementById("signal");
+const callEl = document.getElementById("callPercent");
+const putEl = document.getElementById("putPercent");
+const reasonEl = document.getElementById("reason");
+const historyEl = document.getElementById("history");
+
+
+function connectDeriv(){
+
+    if(ws){
         ws.close();
     }
 
-    document.getElementById("status").innerHTML =
-        "🟡 Connecting to Deriv...";
+    tickCount = 0;
+    previousPrice = null;
+    prices = [];
+    digits = [];
+
+    ticksEl.textContent = "0";
+    priceEl.textContent = "--";
+    digitEl.textContent = "--";
+    directionEl.textContent = "--";
+
+    const symbol = marketEl.value;
+
+    currentMarketEl.textContent = symbol;
+
+    statusEl.innerHTML = "🟡 Connecting...";
 
     ws = new WebSocket(
         "wss://api.derivws.com/trading/v1/options/ws/public"
     );
 
-    ws.onopen = function() {
+    ws.onopen = function(){
 
-        document.getElementById("status").innerHTML =
-            "🟢 LIVE — Connected to Deriv";
+        statusEl.innerHTML =
+        '<span class="live">🟢 LIVE — Connected to Deriv</span>';
+
+        /*
+        Subscribe to market ticks
+        */
 
         ws.send(JSON.stringify({
-            ticks: currentSymbol,
+            ticks: symbol,
             subscribe: 1
         }));
+
     };
 
-    ws.onmessage = function(event) {
 
-        const data = JSON.parse(event.data);
+    ws.onmessage = function(event){
 
-        if (data.msg_type === "tick") {
+        try{
 
-            const price = data.tick.quote;
+            const data = JSON.parse(event.data);
+
+            if(!data.tick){
+                return;
+            }
+
+            const price = Number(data.tick.quote);
+
+            if(!Number.isFinite(price)){
+                return;
+            }
 
             tickCount++;
 
-            document.getElementById("price").innerHTML =
-                price;
+            priceEl.textContent = price;
+            ticksEl.textContent = tickCount;
 
-            document.getElementById("ticks").innerHTML =
-                "Ticks received: " + tickCount;
+            /*
+            Last digit
+            */
+
+            const priceString = price.toString();
 
             const lastDigit =
-                String(price).replace(".", "").slice(-1);
+            Number(priceString.charAt(priceString.length - 1));
 
-            document.getElementById("digit").innerHTML =
-                lastDigit;
+            digitEl.textContent = lastDigit;
 
-            if (previousPrice !== null) {
+            prices.push(price);
+            digits.push(lastDigit);
 
-                if (price > previousPrice) {
+            /*
+            Keep only latest 30 ticks
+            */
 
-                    document.getElementById("direction").innerHTML =
-                        "UP";
+            if(prices.length > 30){
+                prices.shift();
+            }
 
-                } else if (price < previousPrice) {
+            if(digits.length > 30){
+                digits.shift();
+            }
 
-                    document.getElementById("direction").innerHTML =
-                        "DOWN";
 
-                } else {
+            /*
+            Direction
+            */
 
-                    document.getElementById("direction").innerHTML =
-                        "SAME";
+            let direction = "NEUTRAL";
+
+            if(previousPrice !== null){
+
+                if(price > previousPrice){
+                    direction = "UP";
                 }
+                else if(price < previousPrice){
+                    direction = "DOWN";
+                }
+
+            }
+
+            directionEl.textContent = direction;
+
+
+            /*
+            Analyze after receiving enough ticks
+            */
+
+            if(prices.length >= 5){
+
+                analyzeMarket();
+
             }
 
             previousPrice = price;
 
-            analyzeLiveData(price);
         }
+        catch(error){
+
+            console.log("Data error:", error);
+
+        }
+
     };
 
-    ws.onerror = function() {
 
-        document.getElementById("status").innerHTML =
-            "🔴 Connection Error";
+    ws.onerror = function(){
+
+        statusEl.innerHTML =
+        "🔴 Connection Error";
+
     };
 
-    ws.onclose = function() {
 
-        document.getElementById("status").innerHTML =
-            "🔴 Disconnected";
+    ws.onclose = function(){
+
+        statusEl.innerHTML =
+        "🔴 Connection Closed";
+
     };
+
 }
 
 
-function analyzeLiveData(price) {
+/*
+AI MARKET ANALYSIS
+*/
 
-    if (previousPrice === null) {
+function analyzeMarket(){
+
+    if(prices.length < 5){
         return;
     }
 
-    let callProbability;
-    let putProbability;
+    const recent =
+    prices.slice(-10);
 
-    if (price > previousPrice) {
+    let up = 0;
+    let down = 0;
 
-        callProbability = 58;
-        putProbability = 42;
+    for(let i = 1; i < recent.length; i++){
 
-    } else if (price < previousPrice) {
+        if(recent[i] > recent[i-1]){
+            up++;
+        }
 
-        callProbability = 42;
-        putProbability = 58;
+        if(recent[i] < recent[i-1]){
+            down++;
+        }
 
-    } else {
-
-        callProbability = 50;
-        putProbability = 50;
     }
 
-    document.getElementById("call").innerHTML =
-        callProbability + "%";
+    const total = up + down;
 
-    document.getElementById("put").innerHTML =
-        putProbability + "%";
-
-    if (callProbability > putProbability) {
-
-        document.getElementById("signal").innerHTML =
-            "🟢 CALL";
-
-        document.getElementById("signal").className =
-            "signal-value call";
-
-        document.getElementById("confidence").innerHTML =
-            "Confidence: " + callProbability + "%";
-
-        document.getElementById("reason").innerHTML =
-            "Latest tick movement is upward.";
-
-    } else if (putProbability > callProbability) {
-
-        document.getElementById("signal").innerHTML =
-            "🔴 PUT";
-
-        document.getElementById("signal").className =
-            "signal-value put";
-
-        document.getElementById("confidence").innerHTML =
-            "Confidence: " + putProbability + "%";
-
-        document.getElementById("reason").innerHTML =
-            "Latest tick movement is downward.";
-
-    } else {
-
-        document.getElementById("signal").innerHTML =
-            "WAIT";
-
-        document.getElementById("signal").className =
-            "signal-value wait";
-
-        document.getElementById("confidence").innerHTML =
-            "Confidence: 50%";
-
-        document.getElementById("reason").innerHTML =
-            "Market movement is currently neutral.";
+    if(total === 0){
+        return;
     }
+
+    let callPercent =
+    Math.round((up / total) * 100);
+
+    let putPercent =
+    100 - callPercent;
+
+
+    /*
+    Avoid extreme fake confidence
+    */
+
+    callPercent =
+    Math.max(35, Math.min(65, callPercent));
+
+    putPercent =
+    100 - callPercent;
+
+
+    let signal = "WAIT";
+
+    if(callPercent >= 58){
+        signal = "CALL";
+    }
+    else if(putPercent >= 58){
+        signal = "PUT";
+    }
+
+
+    callEl.textContent =
+    callPercent + "%";
+
+    putEl.textContent =
+    putPercent + "%";
+
+    signalEl.textContent =
+    signal;
+
+
+    let reason = "";
+
+    if(signal === "CALL"){
+
+        reason =
+        "Recent ticks show more upward movement than downward movement.";
+
+    }
+    else if(signal === "PUT"){
+
+        reason =
+        "Recent ticks show more downward movement than upward movement.";
+
+    }
+    else{
+
+        reason =
+        "Market movement is mixed. Waiting for stronger tick direction.";
+
+    }
+
+    reasonEl.textContent = reason;
+
+
+    /*
+    Save signal history
+    */
+
+    if(signal !== "WAIT"){
+
+        addHistory(
+            signal,
+            callPercent,
+            putPercent
+        );
+
+    }
+
 }
 
 
-function changeMarket() {
+/*
+HISTORY
+*/
 
-    currentSymbol =
-        document.getElementById("market").value;
+function addHistory(signal, call, put){
 
-    tickCount = 0;
-    previousPrice = null;
+    const time =
+    new Date().toLocaleTimeString();
 
-    connectDeriv();
+    const item =
+    document.createElement("div");
+
+    item.innerHTML =
+    "🕐 " + time +
+    " — <b>" + signal +
+    "</b> — CALL " +
+    call + "% / PUT " +
+    put + "%";
+
+    historyEl.prepend(item);
+
+    /*
+    Keep last 15 signals
+    */
+
+    while(historyEl.children.length > 15){
+
+        historyEl.removeChild(
+            historyEl.lastChild
+        );
+
+    }
+
 }
-
-
-connectDeriv();
 
 </script>
 
