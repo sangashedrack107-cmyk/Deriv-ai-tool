@@ -270,6 +270,10 @@ let previousPrice = null;
 let prices = [];
 let digits = [];
 
+let signalStrength = "WAIT";
+let lastSignal = "";
+let lastSignalTime = 0;
+
 const statusEl = document.getElementById("status");
 const priceEl = document.getElementById("price");
 const ticksEl = document.getElementById("ticks");
