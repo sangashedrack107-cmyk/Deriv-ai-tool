@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Elite Deriv AI Tool</title>
+
+<title>Elite Deriv AI</title>
 
 <style>
 * {
@@ -18,26 +19,23 @@ body {
 }
 
 .header {
-    padding: 20px;
     text-align: center;
+    padding: 20px;
     background: #111827;
-    border-bottom: 1px solid #263244;
 }
 
 .header h1 {
     margin: 0;
-    font-size: 24px;
 }
 
 .header p {
-    margin: 6px 0 0;
     color: #9ca3af;
 }
 
 .container {
-    padding: 18px;
     max-width: 600px;
     margin: auto;
+    padding: 18px;
 }
 
 .card {
@@ -48,15 +46,30 @@ body {
     margin-bottom: 15px;
 }
 
-label {
-    display: block;
-    margin-bottom: 8px;
-    color: #cbd5e1;
+.status {
+    text-align: center;
+    padding: 12px;
+    border-radius: 10px;
+    background: #172033;
 }
 
-select, button {
+.live-price {
+    text-align: center;
+    font-size: 35px;
+    font-weight: bold;
+    margin: 15px 0;
+}
+
+.tick-count {
+    text-align: center;
+    color: #9ca3af;
+}
+
+select,
+button {
     width: 100%;
     padding: 13px;
+    margin-top: 10px;
     border-radius: 10px;
     border: none;
     font-size: 16px;
@@ -71,35 +84,16 @@ button {
     background: #2563eb;
     color: white;
     font-weight: bold;
-    margin-top: 12px;
-}
-
-button:active {
-    transform: scale(0.98);
-}
-
-.status {
-    text-align: center;
-    padding: 12px;
-    border-radius: 10px;
-    background: #172033;
-    color: #facc15;
 }
 
 .signal {
     text-align: center;
-    padding: 25px 10px;
-}
-
-.signal-title {
-    color: #9ca3af;
-    font-size: 14px;
+    padding: 20px;
 }
 
 .signal-value {
-    font-size: 42px;
+    font-size: 38px;
     font-weight: bold;
-    margin: 10px 0;
 }
 
 .call {
@@ -110,34 +104,25 @@ button:active {
     color: #ef4444;
 }
 
-.neutral {
+.wait {
     color: #facc15;
 }
 
-.confidence {
-    font-size: 18px;
-    margin-top: 10px;
-}
-
-.predictions {
+.grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 12px;
 }
 
-.prediction {
+.box {
     background: #1a2333;
     padding: 18px;
     border-radius: 12px;
     text-align: center;
 }
 
-.prediction h3 {
-    margin-top: 0;
-}
-
 .value {
-    font-size: 25px;
+    font-size: 24px;
     font-weight: bold;
 }
 
@@ -154,14 +139,22 @@ button:active {
 
 <div class="header">
     <h1>🤖 ELITE DERIV AI</h1>
-    <p>Options Signal Analysis Tool</p>
+    <p>Live Market Analysis</p>
 </div>
 
 <div class="container">
 
     <div class="card">
-        <div class="status" id="connection">
-            🔴 Market Data: Not Connected
+        <div id="status" class="status">
+            🟡 Connecting to Deriv...
+        </div>
+
+        <div id="price" class="live-price">
+            --
+        </div>
+
+        <div id="ticks" class="tick-count">
+            Ticks received: 0
         </div>
     </div>
 
@@ -170,79 +163,61 @@ button:active {
         <label>Market</label>
 
         <select id="market">
-            <option value="R_10">Volatility 10 Index</option>
-            <option value="R_25">Volatility 25 Index</option>
-            <option value="R_50">Volatility 50 Index</option>
-            <option value="R_75">Volatility 75 Index</option>
-            <option value="R_100">Volatility 100 Index</option>
+            <option value="1HZ10V">Volatility 10 (1s)</option>
+            <option value="1HZ25V">Volatility 25 (1s)</option>
+            <option value="1HZ50V">Volatility 50 (1s)</option>
+            <option value="1HZ75V">Volatility 75 (1s)</option>
+            <option value="1HZ100V">Volatility 100 (1s)</option>
         </select>
 
-        <label style="margin-top:15px;">Prediction Type</label>
-
-        <select id="type">
-            <option value="callput">CALL / PUT</option>
-            <option value="matches">MATCHES</option>
-            <option value="differs">DIFFERS</option>
-        </select>
-
-        <button onclick="analyzeMarket()">
-            🔍 ANALYZE MARKET
+        <button onclick="changeMarket()">
+            🔄 CONNECT MARKET
         </button>
 
     </div>
 
     <div class="card signal">
 
-        <div class="signal-title">
-            AI SIGNAL
-        </div>
+        <div>AI SIGNAL</div>
 
-        <div id="signal" class="signal-value neutral">
+        <div id="signal" class="signal-value wait">
             WAIT
         </div>
 
-        <div id="confidence" class="confidence">
+        <div id="confidence">
             Confidence: --
         </div>
 
         <p id="reason">
-            Select a market and analyze.
+            Waiting for live market data...
         </p>
 
     </div>
 
     <div class="card">
 
-        <h3>📊 Predictions</h3>
+        <h3>📊 Live Analysis</h3>
 
-        <div class="predictions">
+        <div class="grid">
 
-            <div class="prediction">
-                <h3>CALL</h3>
-                <div id="callPercent" class="value call">
-                    --
-                </div>
+            <div class="box">
+                <div>Last Digit</div>
+                <div id="digit" class="value">--</div>
             </div>
 
-            <div class="prediction">
-                <h3>PUT</h3>
-                <div id="putPercent" class="value put">
-                    --
-                </div>
+            <div class="box">
+                <div>Direction</div>
+                <div id="direction" class="value">--</div>
             </div>
 
-            <div class="prediction">
-                <h3>MATCHES</h3>
-                <div id="matchesPercent" class="value">
-                    --
-                </div>
+            <div class="box">
+                <div>CALL</div>
+                <div id="call" class="value call">--</div>
             </div>
 
-            <div class="prediction">
-                <h3>DIFFERS</h3>
-                <div id="differsPercent" class="value">
-                    --
-                </div>
+            <div class="box">
+                <div>PUT</div>
+                <div id="put" class="value put">--</div>
             </div>
 
         </div>
@@ -257,83 +232,185 @@ button:active {
 
 <script>
 
-function analyzeMarket() {
+let ws;
+let currentSymbol = "1HZ10V";
+let tickCount = 0;
+let previousPrice = null;
 
-    const market = document.getElementById("market").value;
-    const type = document.getElementById("type").value;
+function connectDeriv() {
 
-    document.getElementById("connection").innerHTML =
-        "🟡 Analyzing " + market + "...";
+    if (ws) {
+        ws.close();
+    }
 
-    setTimeout(function() {
+    document.getElementById("status").innerHTML =
+        "🟡 Connecting to Deriv...";
 
-        let call = Math.floor(Math.random() * 31) + 55;
-        let put = 100 - call;
+    ws = new WebSocket(
+        "wss://ws.binaryws.com/websockets/v3"
+    );
 
-        let matches = Math.floor(Math.random() * 31) + 50;
-        let differs = 100 - matches;
+    ws.onopen = function() {
 
-        document.getElementById("callPercent").innerHTML =
-            call + "%";
+        document.getElementById("status").innerHTML =
+            "🟢 LIVE — Connected to Deriv";
 
-        document.getElementById("putPercent").innerHTML =
-            put + "%";
+        ws.send(JSON.stringify({
+            ticks: currentSymbol,
+            subscribe: 1
+        }));
+    };
 
-        document.getElementById("matchesPercent").innerHTML =
-            matches + "%";
+    ws.onmessage = function(event) {
 
-        document.getElementById("differsPercent").innerHTML =
-            differs + "%";
+        const data = JSON.parse(event.data);
 
-        let signal = document.getElementById("signal");
-        let confidence = document.getElementById("confidence");
-        let reason = document.getElementById("reason");
+        if (data.msg_type === "tick") {
 
-        if (type === "callput") {
+            const price = data.tick.quote;
 
-            if (call > put) {
+            tickCount++;
 
-                signal.innerHTML = "🟢 CALL";
-                signal.className = "signal-value call";
-                confidence.innerHTML =
-                    "Confidence: " + call + "%";
-                reason.innerHTML =
-                    "Bullish bias detected by the analysis engine.";
+            document.getElementById("price").innerHTML =
+                price;
 
-            } else {
+            document.getElementById("ticks").innerHTML =
+                "Ticks received: " + tickCount;
 
-                signal.innerHTML = "🔴 PUT";
-                signal.className = "signal-value put";
-                confidence.innerHTML =
-                    "Confidence: " + put + "%";
-                reason.innerHTML =
-                    "Bearish bias detected by the analysis engine.";
+            const lastDigit =
+                String(price).replace(".", "").slice(-1);
+
+            document.getElementById("digit").innerHTML =
+                lastDigit;
+
+            if (previousPrice !== null) {
+
+                if (price > previousPrice) {
+
+                    document.getElementById("direction").innerHTML =
+                        "UP";
+
+                } else if (price < previousPrice) {
+
+                    document.getElementById("direction").innerHTML =
+                        "DOWN";
+
+                } else {
+
+                    document.getElementById("direction").innerHTML =
+                        "SAME";
+                }
             }
 
-        } else if (type === "matches") {
+            previousPrice = price;
 
-            signal.innerHTML = "🟢 MATCHES";
-            signal.className = "signal-value call";
-            confidence.innerHTML =
-                "Confidence: " + matches + "%";
-            reason.innerHTML =
-                "Matches prediction selected.";
-
-        } else {
-
-            signal.innerHTML = "🔴 DIFFERS";
-            signal.className = "signal-value put";
-            confidence.innerHTML =
-                "Confidence: " + differs + "%";
-            reason.innerHTML =
-                "Differs prediction selected.";
+            analyzeLiveData(price);
         }
+    };
 
-        document.getElementById("connection").innerHTML =
-            "🟢 Analysis Ready";
+    ws.onerror = function() {
 
-    }, 1000);
+        document.getElementById("status").innerHTML =
+            "🔴 Connection Error";
+    };
+
+    ws.onclose = function() {
+
+        document.getElementById("status").innerHTML =
+            "🔴 Disconnected";
+    };
 }
+
+
+function analyzeLiveData(price) {
+
+    if (previousPrice === null) {
+        return;
+    }
+
+    let callProbability;
+    let putProbability;
+
+    if (price > previousPrice) {
+
+        callProbability = 58;
+        putProbability = 42;
+
+    } else if (price < previousPrice) {
+
+        callProbability = 42;
+        putProbability = 58;
+
+    } else {
+
+        callProbability = 50;
+        putProbability = 50;
+    }
+
+    document.getElementById("call").innerHTML =
+        callProbability + "%";
+
+    document.getElementById("put").innerHTML =
+        putProbability + "%";
+
+    if (callProbability > putProbability) {
+
+        document.getElementById("signal").innerHTML =
+            "🟢 CALL";
+
+        document.getElementById("signal").className =
+            "signal-value call";
+
+        document.getElementById("confidence").innerHTML =
+            "Confidence: " + callProbability + "%";
+
+        document.getElementById("reason").innerHTML =
+            "Latest tick movement is upward.";
+
+    } else if (putProbability > callProbability) {
+
+        document.getElementById("signal").innerHTML =
+            "🔴 PUT";
+
+        document.getElementById("signal").className =
+            "signal-value put";
+
+        document.getElementById("confidence").innerHTML =
+            "Confidence: " + putProbability + "%";
+
+        document.getElementById("reason").innerHTML =
+            "Latest tick movement is downward.";
+
+    } else {
+
+        document.getElementById("signal").innerHTML =
+            "WAIT";
+
+        document.getElementById("signal").className =
+            "signal-value wait";
+
+        document.getElementById("confidence").innerHTML =
+            "Confidence: 50%";
+
+        document.getElementById("reason").innerHTML =
+            "Market movement is currently neutral.";
+    }
+}
+
+
+function changeMarket() {
+
+    currentSymbol =
+        document.getElementById("market").value;
+
+    tickCount = 0;
+    previousPrice = null;
+
+    connectDeriv();
+}
+
+
+connectDeriv();
 
 </script>
 
