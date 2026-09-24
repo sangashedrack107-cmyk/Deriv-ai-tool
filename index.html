@@ -512,7 +512,9 @@ else {
     }
     else {
         signalStrength = "WAIT";
-    }
+    }if(signalStrengthEl){
+    signalStrengthEl.textContent = signalStrength;
+}
 }
     if(prices.length < 5){
         return;
