@@ -459,12 +459,204 @@ function changePredictionType(){
         signal.textContent = "DIFFERS";
     }
 
-}
 function analyzeMarket(){
 
     if(prices.length < 5){
         return;
     }
+
+    const type =
+        document.getElementById("predictionType").value;
+
+    /* =========================
+       CALL / PUT ANALYSIS
+    ========================== */
+
+    if(type === "direction"){
+
+        const recent = prices.slice(-10);
+
+        let up = 0;
+        let down = 0;
+
+        for(let i = 1; i < recent.length; i++){
+
+            if(recent[i] > recent[i-1]) up++;
+            if(recent[i] < recent[i-1]) down++;
+
+        }
+
+        const total = up + down;
+
+        if(total === 0) return;
+
+        let callPercent =
+            Math.round((up / total) * 100);
+
+        let putPercent =
+            100 - callPercent;
+
+        callPercent =
+            Math.max(35, Math.min(65, callPercent));
+
+        putPercent = 100 - callPercent;
+
+        let signal = "WAIT";
+
+        if(callPercent >= 58){
+            signal = "CALL";
+        }
+        else if(putPercent >= 58){
+            signal = "PUT";
+        }
+
+        signalEl.textContent = signal;
+        callEl.textContent = callPercent + "%";
+        putEl.textContent = putPercent + "%";
+
+        reasonEl.textContent =
+            signal === "CALL"
+            ? "Recent ticks show stronger upward movement."
+            : signal === "PUT"
+            ? "Recent ticks show stronger downward movement."
+            : "Market movement is mixed. Waiting for stronger data.";
+
+        return;
+    }
+
+
+    /* =========================
+       MATCHES / DIFFERS
+    ========================== */
+
+    if(type === "matches" || type === "differs"){
+
+        if(digits.length < 10){
+            return;
+        }
+
+        const recentDigits =
+            digits.slice(-20);
+
+        /*
+        Count frequency of each digit
+        */
+
+        const frequency = {};
+
+        for(let d = 0; d <= 9; d++){
+            frequency[d] = 0;
+        }
+
+        recentDigits.forEach(function(d){
+            frequency[d]++;
+        });
+
+
+        /*
+        Find most frequent digit
+        */
+
+        let targetDigit = 0;
+
+        for(let d = 1; d <= 9; d++){
+
+            if(frequency[d] > frequency[targetDigit]){
+                targetDigit = d;
+            }
+
+        }
+
+
+        const targetCount =
+            frequency[targetDigit];
+
+        const matchRate =
+            Math.round(
+                (targetCount / recentDigits.length) * 100
+            );
+
+
+        /*
+        Matches = historical frequency
+        Differs = opposite probability
+        */
+
+        let confidence =
+            type === "matches"
+            ? matchRate
+            : 100 - matchRate;
+
+
+        /*
+        Keep confidence realistic
+        */
+
+        confidence =
+            Math.max(50, Math.min(95, confidence));
+
+
+        const prediction =
+            type === "matches"
+            ? "MATCH " + targetDigit
+            : "DIFFER " + targetDigit;
+
+
+        document.getElementById("prediction").textContent =
+            prediction;
+
+        document.getElementById("predictionConfidence").textContent =
+            confidence + "%";
+
+
+        signalEl.textContent =
+            prediction;
+
+
+        reasonEl.textContent =
+            "Based on the last " +
+            recentDigits.length +
+            " live ticks, digit " +
+            targetDigit +
+            " appeared " +
+            targetCount +
+            " times (" +
+            matchRate +
+            "%).";
+
+
+        /*
+        Show MATCHES / DIFFERS percentages
+        */
+
+        callEl.textContent =
+            type === "matches"
+            ? matchRate + "%"
+            : (100 - matchRate) + "%";
+
+        putEl.textContent =
+            type === "matches"
+            ? (100 - matchRate) + "%"
+            : matchRate + "%";
+
+
+        /*
+        Add to history
+        */
+
+        addHistory(
+            prediction,
+            type === "matches"
+            ? matchRate
+            : 100 - matchRate,
+            type === "matches"
+            ? 100 - matchRate
+            : matchRate
+        );
+
+    }
+
+}
 
     const recent =
     prices.slice(-10);
