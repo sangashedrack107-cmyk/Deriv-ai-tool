@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elite Deriv AI Tool</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    margin: 0;
+    background: #080b12;
+    color: white;
+}
+
+.header {
+    padding: 20px;
+    text-align: center;
+    background: #111827;
+    border-bottom: 1px solid #263244;
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 24px;
+}
+
+.header p {
+    margin: 6px 0 0;
+    color: #9ca3af;
+}
+
+.container {
+    padding: 18px;
+    max-width: 600px;
+    margin: auto;
+}
+
+.card {
+    background: #111827;
+    border: 1px solid #263244;
+    border-radius: 15px;
+    padding: 18px;
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    color: #cbd5e1;
+}
+
+select, button {
+    width: 100%;
+    padding: 13px;
+    border-radius: 10px;
+    border: none;
+    font-size: 16px;
+}
+
+select {
+    background: #1f2937;
+    color: white;
+}
+
+button {
+    background: #2563eb;
+    color: white;
+    font-weight: bold;
+    margin-top: 12px;
+}
+
+button:active {
+    transform: scale(0.98);
+}
+
+.status {
+    text-align: center;
+    padding: 12px;
+    border-radius: 10px;
+    background: #172033;
+    color: #facc15;
+}
+
+.signal {
+    text-align: center;
+    padding: 25px 10px;
+}
+
+.signal-title {
+    color: #9ca3af;
+    font-size: 14px;
+}
+
+.signal-value {
+    font-size: 42px;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+.call {
+    color: #22c55e;
+}
+
+.put {
+    color: #ef4444;
+}
+
+.neutral {
+    color: #facc15;
+}
+
+.confidence {
+    font-size: 18px;
+    margin-top: 10px;
+}
+
+.predictions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.prediction {
+    background: #1a2333;
+    padding: 18px;
+    border-radius: 12px;
+    text-align: center;
+}
+
+.prediction h3 {
+    margin-top: 0;
+}
+
+.value {
+    font-size: 25px;
+    font-weight: bold;
+}
+
+.footer {
+    text-align: center;
+    color: #6b7280;
+    font-size: 12px;
+    padding: 20px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+    <h1>🤖 ELITE DERIV AI</h1>
+    <p>Options Signal Analysis Tool</p>
+</div>
+
+<div class="container">
+
+    <div class="card">
+        <div class="status" id="connection">
+            🔴 Market Data: Not Connected
+        </div>
+    </div>
+
+    <div class="card">
+
+        <label>Market</label>
+
+        <select id="market">
+            <option value="R_10">Volatility 10 Index</option>
+            <option value="R_25">Volatility 25 Index</option>
+            <option value="R_50">Volatility 50 Index</option>
+            <option value="R_75">Volatility 75 Index</option>
+            <option value="R_100">Volatility 100 Index</option>
+        </select>
+
+        <label style="margin-top:15px;">Prediction Type</label>
+
+        <select id="type">
+            <option value="callput">CALL / PUT</option>
+            <option value="matches">MATCHES</option>
+            <option value="differs">DIFFERS</option>
+        </select>
+
+        <button onclick="analyzeMarket()">
+            🔍 ANALYZE MARKET
+        </button>
+
+    </div>
+
+    <div class="card signal">
+
+        <div class="signal-title">
+            AI SIGNAL
+        </div>
+
+        <div id="signal" class="signal-value neutral">
+            WAIT
+        </div>
+
+        <div id="confidence" class="confidence">
+            Confidence: --
+        </div>
+
+        <p id="reason">
+            Select a market and analyze.
+        </p>
+
+    </div>
+
+    <div class="card">
+
+        <h3>📊 Predictions</h3>
+
+        <div class="predictions">
+
+            <div class="prediction">
+                <h3>CALL</h3>
+                <div id="callPercent" class="value call">
+                    --
+                </div>
+            </div>
+
+            <div class="prediction">
+                <h3>PUT</h3>
+                <div id="putPercent" class="value put">
+                    --
+                </div>
+            </div>
+
+            <div class="prediction">
+                <h3>MATCHES</h3>
+                <div id="matchesPercent" class="value">
+                    --
+                </div>
+            </div>
+
+            <div class="prediction">
+                <h3>DIFFERS</h3>
+                <div id="differsPercent" class="value">
+                    --
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div class="footer">
+    ELITE FX ACADEMY © 2026
+</div>
+
+<script>
+
+function analyzeMarket() {
+
+    const market = document.getElementById("market").value;
+    const type = document.getElementById("type").value;
+
+    document.getElementById("connection").innerHTML =
+        "🟡 Analyzing " + market + "...";
+
+    setTimeout(function() {
+
+        let call = Math.floor(Math.random() * 31) + 55;
+        let put = 100 - call;
+
+        let matches = Math.floor(Math.random() * 31) + 50;
+        let differs = 100 - matches;
+
+        document.getElementById("callPercent").innerHTML =
+            call + "%";
+
+        document.getElementById("putPercent").innerHTML =
+            put + "%";
+
+        document.getElementById("matchesPercent").innerHTML =
+            matches + "%";
+
+        document.getElementById("differsPercent").innerHTML =
+            differs + "%";
+
+        let signal = document.getElementById("signal");
+        let confidence = document.getElementById("confidence");
+        let reason = document.getElementById("reason");
+
+        if (type === "callput") {
+
+            if (call > put) {
+
+                signal.innerHTML = "🟢 CALL";
+                signal.className = "signal-value call";
+                confidence.innerHTML =
+                    "Confidence: " + call + "%";
+                reason.innerHTML =
+                    "Bullish bias detected by the analysis engine.";
+
+            } else {
+
+                signal.innerHTML = "🔴 PUT";
+                signal.className = "signal-value put";
+                confidence.innerHTML =
+                    "Confidence: " + put + "%";
+                reason.innerHTML =
+                    "Bearish bias detected by the analysis engine.";
+            }
+
+        } else if (type === "matches") {
+
+            signal.innerHTML = "🟢 MATCHES";
+            signal.className = "signal-value call";
+            confidence.innerHTML =
+                "Confidence: " + matches + "%";
+            reason.innerHTML =
+                "Matches prediction selected.";
+
+        } else {
+
+            signal.innerHTML = "🔴 DIFFERS";
+            signal.className = "signal-value put";
+            confidence.innerHTML =
+                "Confidence: " + differs + "%";
+            reason.innerHTML =
+                "Differs prediction selected.";
+        }
+
+        document.getElementById("connection").innerHTML =
+            "🟢 Analysis Ready";
+
+    }, 1000);
+}
+
+</script>
+
+</body>
+</html>
