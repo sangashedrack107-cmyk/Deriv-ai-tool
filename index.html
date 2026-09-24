@@ -464,7 +464,12 @@ function changePredictionType(){
     }
 
 function analyzeMarket(){
+const now = Date.now();
 
+if (prices.length < 20) {
+    signalStrength = "WAIT";
+    return;
+}
     if(prices.length < 5){
         return;
     }
