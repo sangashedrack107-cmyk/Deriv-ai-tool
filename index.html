@@ -195,7 +195,31 @@ button:hover{
 </div>
 
 </div>
+<div class="card">
 
+<h3>🎯 PREDICTION TYPE</h3>
+
+<select id="predictionType" onchange="changePredictionType()">
+    <option value="direction">CALL / PUT</option>
+    <option value="matches">MATCHES</option>
+    <option value="differs">DIFFERS</option>
+</select>
+
+<div class="stats">
+
+<div class="stat">
+<span>Prediction</span>
+<b id="prediction">--</b>
+</div>
+
+<div class="stat">
+<span>Confidence</span>
+<b id="predictionConfidence">--</b>
+</div>
+
+</div>
+
+</div>
 <div class="card">
 
 <h3>🧠 AI SIGNAL</h3>
@@ -415,7 +439,27 @@ function connectDeriv(){
 /*
 AI MARKET ANALYSIS
 */
+function changePredictionType(){
 
+    const type =
+    document.getElementById("predictionType").value;
+
+    const signal =
+    document.getElementById("signal");
+
+    if(type === "direction"){
+        signal.textContent = "WAITING";
+    }
+
+    if(type === "matches"){
+        signal.textContent = "MATCHES";
+    }
+
+    if(type === "differs"){
+        signal.textContent = "DIFFERS";
+    }
+
+}
 function analyzeMarket(){
 
     if(prices.length < 5){
