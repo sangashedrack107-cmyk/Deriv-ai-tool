@@ -473,6 +473,8 @@ function connectDeriv(){
 function analyzeMarket(){
 const strengthEl = document.getElementById("signalStrength");
     const confidenceEl = document.getElementById("confidence");
+    const advancedSignalEl = document.getElementById("advancedSignal");
+const advancedReasonEl = document.getElementById("advancedReason");
     if(prices.length < 5){
         return;
     }
