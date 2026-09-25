@@ -461,7 +461,7 @@ function connectDeriv(){
 ========================= */
 
 function analyzeMarket(){
-
+const strengthEl = document.getElementById("signalStrength");
     if(prices.length < 5){
         return;
     }
@@ -540,7 +540,7 @@ function analyzeMarket(){
 
         let signal =
         "WAIT";
-
+let strength="WAIT";
 
         if(callPercent >= 58){
 
@@ -551,7 +551,13 @@ function analyzeMarket(){
             signal = "PUT";
 
         }
-
+if(callPercent>=65 || putPercent>=65){
+    strength="STRONG";
+}else if(callPercent>=58 || putPercent>=58){
+    strength="NORMAL";
+}else{
+    strength="WAIT";
+}
 
         signalEl.textContent =
         signal;
@@ -563,7 +569,9 @@ function analyzeMarket(){
 
         putEl.textContent =
         putPercent + "%";
-
+if(strengthEl){
+    strengthEl.textContent=strength;
+}
 
         reasonEl.textContent =
 
