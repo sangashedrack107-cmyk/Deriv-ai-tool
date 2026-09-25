@@ -586,6 +586,18 @@ if(strengthEl){
     strengthEl.textContent=strength;
 }
         if(advancedSignalEl){
+            if(advancedReasonEl){
+    if(signal==="CALL"){
+        advancedReasonEl.textContent =
+        "Recent price movement is showing upward pressure.";
+    }else if(signal==="PUT"){
+        advancedReasonEl.textContent =
+        "Recent price movement is showing downward pressure.";
+    }else{
+        advancedReasonEl.textContent =
+        "Market movement is mixed. Waiting for stronger confirmation.";
+    }
+            }
     if(signal==="CALL" && strength==="STRONG"){
         advancedSignalEl.textContent="STRONG CALL";
     }else if(signal==="PUT" && strength==="STRONG"){
