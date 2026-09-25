@@ -585,6 +585,19 @@ if(callPercent>=65 || putPercent>=65){
 if(strengthEl){
     strengthEl.textContent=strength;
 }
+        if(advancedSignalEl){
+    if(signal==="CALL" && strength==="STRONG"){
+        advancedSignalEl.textContent="STRONG CALL";
+    }else if(signal==="PUT" && strength==="STRONG"){
+        advancedSignalEl.textContent="STRONG PUT";
+    }else if(signal==="CALL"){
+        advancedSignalEl.textContent="CALL";
+    }else if(signal==="PUT"){
+        advancedSignalEl.textContent="PUT";
+    }else{
+        advancedSignalEl.textContent="WAIT";
+    }
+        }
 let confidence=50;
 
 if(strength==="STRONG"){
