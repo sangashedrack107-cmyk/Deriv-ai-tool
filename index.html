@@ -256,3 +256,551 @@ const statusEl =
 document.getElementById("status");
 
 const priceEl =
+document.getElementById("price");
+
+const ticksEl =
+document.getElementById("ticks");
+
+const digitEl =
+document.getElementById("digit");
+
+const directionEl =
+document.getElementById("direction");
+
+const marketEl =
+document.getElementById("market");
+
+const currentMarketEl =
+document.getElementById("currentMarket");
+
+const signalEl =
+document.getElementById("signal");
+
+const callEl =
+document.getElementById("callPercent");
+
+const putEl =
+document.getElementById("putPercent");
+
+const reasonEl =
+document.getElementById("reason");
+
+const historyEl =
+document.getElementById("history");
+
+
+
+function connectDeriv(){
+
+    if(ws){
+        ws.close();
+    }
+
+    tickCount = 0;
+    previousPrice = null;
+
+    prices = [];
+    digits = [];
+
+    ticksEl.textContent = "0";
+    priceEl.textContent = "--";
+    digitEl.textContent = "--";
+    directionEl.textContent = "--";
+    signalEl.textContent = "WAITING";
+
+    const symbol =
+    marketEl.value;
+
+    currentMarketEl.textContent =
+    symbol;
+
+    statusEl.innerHTML =
+    "🟡 Connecting...";
+
+
+    ws = new WebSocket(
+        "wss://api.derivws.com/trading/v1/options/ws/public"
+    );
+
+
+    ws.onopen = function(){
+
+        statusEl.innerHTML =
+        '<span class="live">🟢 LIVE — Connected to Deriv</span>';
+
+        ws.send(JSON.stringify({
+
+            ticks: symbol,
+            subscribe: 1
+
+        }));
+
+    };
+
+
+    ws.onmessage = function(event){
+
+        try{
+
+            const data =
+            JSON.parse(event.data);
+
+            if(!data.tick){
+                return;
+            }
+
+            const price =
+            Number(data.tick.quote);
+
+            if(!Number.isFinite(price)){
+                return;
+            }
+
+
+            tickCount++;
+
+            priceEl.textContent =
+            price;
+
+            ticksEl.textContent =
+            tickCount;
+
+
+            const priceString =
+            price.toString();
+
+            const lastDigit =
+            Number(
+                priceString.charAt(
+                    priceString.length - 1
+                )
+            );
+
+            digitEl.textContent =
+            lastDigit;
+
+
+            prices.push(price);
+            digits.push(lastDigit);
+
+
+            if(prices.length > 30){
+                prices.shift();
+            }
+
+            if(digits.length > 30){
+                digits.shift();
+            }
+
+
+            let direction =
+            "NEUTRAL";
+
+
+            if(previousPrice !== null){
+
+                if(price > previousPrice){
+
+                    direction = "UP";
+
+                }else if(price < previousPrice){
+
+                    direction = "DOWN";
+                }
+            }
+
+
+            directionEl.textContent =
+            direction;
+
+
+            if(prices.length >= 5){
+
+                analyzeMarket();
+            }
+
+
+            previousPrice =
+            price;
+
+        }
+
+        catch(error){
+
+            console.log(error);
+
+        }
+
+    };
+
+
+    ws.onerror = function(){
+
+        statusEl.innerHTML =
+        "🔴 Connection Error";
+
+    };
+
+
+    ws.onclose = function(){
+
+        statusEl.innerHTML =
+        "🔴 Disconnected";
+
+    };
+
+}
+
+
+
+/* =========================
+   MARKET ANALYSIS
+========================= */
+
+function analyzeMarket(){
+
+    if(prices.length < 5){
+        return;
+    }
+
+
+    const type =
+    document.getElementById(
+        "predictionType"
+    ).value;
+
+
+
+    /* CALL / PUT */
+
+    if(type === "direction"){
+
+        const recent =
+        prices.slice(-10);
+
+        let up = 0;
+        let down = 0;
+
+
+        for(
+            let i = 1;
+            i < recent.length;
+            i++
+        ){
+
+            if(
+                recent[i] >
+                recent[i - 1]
+            ){
+                up++;
+            }
+
+            if(
+                recent[i] <
+                recent[i - 1]
+            ){
+                down++;
+            }
+
+        }
+
+
+        const total =
+        up + down;
+
+
+        if(total === 0){
+            return;
+        }
+
+
+        let callPercent =
+        Math.round(
+            (up / total) * 100
+        );
+
+
+        let putPercent =
+        100 - callPercent;
+
+
+        callPercent =
+        Math.max(
+            35,
+            Math.min(65, callPercent)
+        );
+
+
+        putPercent =
+        100 - callPercent;
+
+
+        let signal =
+        "WAIT";
+
+
+        if(callPercent >= 58){
+
+            signal = "CALL";
+
+        }else if(putPercent >= 58){
+
+            signal = "PUT";
+
+        }
+
+
+        signalEl.textContent =
+        signal;
+
+
+        callEl.textContent =
+        callPercent + "%";
+
+
+        putEl.textContent =
+        putPercent + "%";
+
+
+        reasonEl.textContent =
+
+        signal === "CALL"
+
+        ? "Recent ticks show stronger upward movement."
+
+        : signal === "PUT"
+
+        ? "Recent ticks show stronger downward movement."
+
+        : "Market movement is mixed. Waiting for stronger data.";
+
+
+        if(signal !== "WAIT"){
+
+            addHistory(
+                signal,
+                callPercent,
+                putPercent
+            );
+
+        }
+
+        return;
+
+    }
+
+
+
+    /* =========================
+       MATCHES / DIFFERS
+    ========================= */
+
+    if(
+        type === "matches" ||
+        type === "differs"
+    ){
+
+        if(digits.length < 10){
+            return;
+        }
+
+
+        const recentDigits =
+        digits.slice(-20);
+
+
+        const frequency = {};
+
+
+        for(
+            let d = 0;
+            d <= 9;
+            d++
+        ){
+
+            frequency[d] = 0;
+
+        }
+
+
+        recentDigits.forEach(
+            function(d){
+
+                frequency[d]++;
+
+            }
+        );
+
+
+        let targetDigit = 0;
+
+
+        for(
+            let d = 1;
+            d <= 9;
+            d++
+        ){
+
+            if(
+                frequency[d] >
+                frequency[targetDigit]
+            ){
+
+                targetDigit = d;
+
+            }
+
+        }
+
+
+        const targetCount =
+        frequency[targetDigit];
+
+
+        const matchRate =
+        Math.round(
+            (targetCount /
+            recentDigits.length) * 100
+        );
+
+
+        let confidence;
+
+
+        if(type === "matches"){
+
+            confidence =
+            matchRate;
+
+        }else{
+
+            confidence =
+            100 - matchRate;
+
+        }
+
+
+        confidence =
+        Math.max(
+            50,
+            Math.min(95, confidence)
+        );
+
+
+        const prediction =
+
+        type === "matches"
+
+        ? "MATCH " + targetDigit
+
+        : "DIFFER " + targetDigit;
+
+
+        signalEl.textContent =
+        prediction;
+
+
+        reasonEl.textContent =
+        "Based on the last " +
+        recentDigits.length +
+        " live ticks, digit " +
+        targetDigit +
+        " appeared " +
+        targetCount +
+        " times (" +
+        matchRate +
+        "%).";
+
+
+        if(type === "matches"){
+
+            callEl.textContent =
+            matchRate + "%";
+
+            putEl.textContent =
+            (100 - matchRate) + "%";
+
+        }else{
+
+            callEl.textContent =
+            (100 - matchRate) + "%";
+
+            putEl.textContent =
+            matchRate + "%";
+
+        }
+
+
+        addHistory(
+            prediction,
+            type === "matches"
+            ? matchRate
+            : 100 - matchRate,
+
+            type === "matches"
+            ? 100 - matchRate
+            : matchRate
+        );
+
+    }
+
+}
+
+
+
+/* =========================
+   SIGNAL HISTORY
+========================= */
+
+function addHistory(
+    signal,
+    first,
+    second
+){
+
+    const time =
+    new Date()
+    .toLocaleTimeString();
+
+
+    const item =
+    document.createElement("div");
+
+
+    item.innerHTML =
+    "🕐 " +
+    time +
+    " — <b>" +
+    signal +
+    "</b> — " +
+    first +
+    "% / " +
+    second +
+    "%";
+
+
+    historyEl.prepend(item);
+
+
+    while(
+        historyEl.children.length > 15
+    ){
+
+        historyEl.removeChild(
+            historyEl.lastChild
+        );
+
+    }
+
+}
+
+
+
+/* START */
+
+connectDeriv();
+
+</script>
+
+</body>
+</html>
