@@ -577,7 +577,21 @@ if(callPercent>=65 || putPercent>=65){
 if(strengthEl){
     strengthEl.textContent=strength;
 }
+let confidence=50;
 
+if(strength==="STRONG"){
+    confidence=75;
+}else if(strength==="NORMAL"){
+    confidence=60;
+}
+
+if(signal==="WAIT"){
+    confidence=50;
+}
+
+if(confidenceEl){
+    confidenceEl.textContent=confidence+"%";
+}
         reasonEl.textContent =
 
         signal === "CALL"
