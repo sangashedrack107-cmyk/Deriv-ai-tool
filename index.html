@@ -466,6 +466,7 @@ function connectDeriv(){
 
 function analyzeMarket(){
 const strengthEl = document.getElementById("signalStrength");
+    const confidenceEl = document.getElementById("confidence");
     if(prices.length < 5){
         return;
     }
