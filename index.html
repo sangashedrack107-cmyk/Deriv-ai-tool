@@ -829,7 +829,15 @@ function addHistory(
     first,
     second
 ){
+if(
+    signal === lastRecordedSignal &&
+    tickCount - lastSignalTick < 10
+){
+    return;
+}
 
+lastRecordedSignal = signal;
+lastSignalTick = tickCount;
     const time =
     new Date()
     .toLocaleTimeString();
