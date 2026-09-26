@@ -586,6 +586,14 @@ if(strengthEl){
     strengthEl.textContent=strength;
 }
         if(advancedSignalEl){
+    if(signal==="CALL" && strength==="STRONG" && confidence>=75){
+        advancedSignalEl.textContent="STRONG CALL";
+    }else if(signal==="PUT" && strength==="STRONG" && confidence>=75){
+        advancedSignalEl.textContent="STRONG PUT";
+    }else{
+        advancedSignalEl.textContent="WAIT";
+    }
+}
             if(advancedReasonEl){
     if(signal==="CALL"){
         advancedReasonEl.textContent =
