@@ -456,14 +456,17 @@ function connectDeriv(){
     };
 
 
-    ws.onclose = function(){
+    
+ws.onclose = function(){
 
-        statusEl.innerHTML =
-        "🔴 Disconnected";
+    statusEl.innerHTML =
+    "🟠 Reconnecting...";
 
-    };
+    setTimeout(function(){
+        connectWebSocket();
+    }, 3000);
 
-}
+};
 
 
 
